@@ -42,14 +42,14 @@ namespace Products.Controllers
             return Created($"/{product.Id}", product);
         }
 
-        [HttpPut("/")]
+        [HttpPut("/{id:int}")]
         public IActionResult Put(
             [FromRoute] int id,
             [FromBody] Product product,
             [FromServices] AppDbContext context
         )
         {
-            var model = context.Products!.FirstOrDefault(X => X.Id == id);
+            var model = context.Products!.FirstOrDefault(x => x.Id == id);
             if ( model == null )
             {
                 return NotFound();
@@ -64,7 +64,7 @@ namespace Products.Controllers
             return Ok(model);
         }
 
-        [HttpDelete("/")]
+        [HttpDelete("/{id:int}")]
         public IActionResult Delete(
             [FromRoute] int id,
             [FromServices] AppDbContext context
