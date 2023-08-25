@@ -9,35 +9,41 @@ namespace Products.Controllers
     public class ProductController : ControllerBase
     {
         [HttpGet("/")]
-        public List<Product> Get( 
+        public IActionResult Get( 
             [FromServices] AppDbContext context
         )
         {
-            return context.Products!.ToList();
+            return Ok(context.Products!.ToList());
         }
 
         [HttpGet("/{id:int}")]
-        public Product GetById(
+        public IActionResult GetById(
             [FromRoute] int id,
             [FromServices] AppDbContext context
         )
         {
-            return context.Products!.FirstOrDefault(x => x.Id == id);
+            var model = context.Products!.FirstOrDefault(x => x.Id == id);
+        
+            if (model == null) 
+            {
+                return NotFound();
+            }
+            return Ok(model);
         }
 
         [HttpPost("/")]
-        public Product Post( 
+        public IActionResult Post( 
             [FromBody] Product product,
             [FromServices] AppDbContext context
         ) 
         {
             context.Products!.Add(product);
             context.SaveChanges();
-            return product;
+            return Created($"/{product.Id}", product);
         }
 
         [HttpPut("/")]
-        public Product Put(
+        public IActionResult Put(
             [FromRoute] int id,
             [FromBody] Product product,
             [FromServices] AppDbContext context
@@ -46,7 +52,7 @@ namespace Products.Controllers
             var model = context.Products!.FirstOrDefault(X => X.Id == id);
             if ( model == null )
             {
-                return product;
+                return NotFound();
             }
 
             model.Nome = product.Nome;
@@ -55,20 +61,24 @@ namespace Products.Controllers
 
             context.Products!.Update(model);
             context.SaveChanges();
-            return model;
+            return Ok(model);
         }
 
         [HttpDelete("/")]
-        public Product Delete(
+        public IActionResult Delete(
             [FromRoute] int id,
             [FromServices] AppDbContext context
         )
         {
             var model = context.Products!.FirstOrDefault(x => x.Id == id);
 
+            if ( model == null )
+            {
+                return NotFound();
+            }
             context.Products!.Remove(model);
             context.SaveChanges();
-            return model;
+            return Ok(model);
         }
     }
 }
